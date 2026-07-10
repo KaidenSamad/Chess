@@ -158,6 +158,96 @@ def check_options(pieces, locations, turn):
 
     return all_moves_list
 
+# check king moves
+def check_king(position, color):
+    moves_list = []
+    
+    if color == 'white':
+        enemies_list = black_locations
+        friends_list = white_locations
+    else:
+        enemies_list = white_locations
+        friends_list = black_locations
+    # 8 squares to check for kings, they can go 1 square any direction
+    targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
+    for i in range(8):
+        target = (position[0] + targets[i][0], position[1] + targets[i][1])
+        if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
+            moves_list.append(target)
+    
+    return moves_list
+
+# check queen moves
+def check_queen(position, color):
+    moves_list = check_bishop(position, color)
+    second_list = check_rook(position, color)
+
+    # comboine diagonal functionality to straight functionality.
+    for i in range(len(second_list)):
+        moves_list.append(second_list[i])
+
+    return moves_list
+
+# check bishop moves
+def check_bishop(position, color):
+    moves_list = []
+    if color == 'white':
+        enemies_list = black_locations
+        friends_list = white_locations
+    else:
+        enemies_list = white_locations
+        friends_list = black_locations
+    
+    for i in range(4):
+        path = True
+        chain = 1
+        if i == 0:  # up-right
+            x = 1
+            y = -1
+        elif i == 1: # up-left
+            x = -1
+            y = -1
+        elif i == 2: # down-right
+            x = 1
+            y = 1
+        else:         # down-left
+            x = -1
+            y = 1
+        while path:
+            # check to see if when can continue going in any direction; either spot has empty square or enemy
+            if (position[0] + (chain * x), position[1] + (chain * y)) not in friends_list and \
+                    0 <= position[0] + (chain * x) <= 7 and 0 <= position[1] + (chain * y) <= 7:
+                # If valid add to moves list
+                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                # check to see if we encounter an enemy -> cannot go any further
+                if (position[0] + (chain * x), position[1] + (chain * y)) in enemies_list:
+                    path = False
+                chain += 1
+            else:
+                path = False
+    
+    return moves_list
+
+# check knight moves
+def check_knight(position, color):
+    moves_list = []
+    if color == 'white':
+        enemies_list = black_locations
+        friends_list = white_locations
+    else:
+        enemies_list = white_locations
+        friends_list = black_locations
+
+    # 8 squares to check for knights, 2 squares in one direction and 1 in another
+    # Almost like a circle that they can attack from
+    targets = [(1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1)]
+    for i in range(8):
+        target = (position[0] + targets[i][0], position[1] + targets[i][1])
+        if target not in friends_list and 0 <= target[0] <= 7:
+            moves_list.append(target)
+    
+    return moves_list
+
 # check rook moves
 def check_rook(position, color):
     moves_list = []
